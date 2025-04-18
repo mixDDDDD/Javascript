@@ -1,19 +1,43 @@
-function convertCurrency(amount, fromCurrency, toCurrency) {
-    const exchangeRates = {
-        RUB: { USD: 0.012, EUR: 0.011 },
-        USD: { RUB: 86.16, EUR: 0.91 },
-        EUR: { RUB: 94.29, USD: 1.09 }
-    };
+function converter(sum, currency, targetCurrency) {
+    const USD = 90;
+    const EUR = 100;
 
-    if (exchangeRates[fromCurrency] && exchangeRates[fromCurrency][toCurrency]) {
-        const rate = exchangeRates[fromCurrency][toCurrency];
-        return amount * rate;
-    } else {
-        return null;
+    currency = currency.toUpperCase();
+    targetCurrency = targetCurrency.toUpperCase();
+
+    switch (currency) {
+        case 'USD':
+            switch (targetCurrency) {
+                case 'RUB':
+                    return parseFloat((sum * USD).toFixed(2));
+                case 'EUR':
+                    return parseFloat(((sum * USD) / EUR).toFixed(2));
+                default:
+                    return null;
+            }
+        case 'EUR':
+            switch (targetCurrency) {
+                case 'RUB':
+                    return parseFloat((sum * EUR).toFixed(2));
+                case 'USD':
+                    return parseFloat(((sum * EUR) / USD).toFixed(2));
+                default:
+                    return null;
+            }
+        case 'RUB':
+            switch (targetCurrency) {
+                case 'USD':
+                    return parseFloat((sum / USD).toFixed(2));
+                case 'EUR':
+                    return parseFloat((sum / EUR).toFixed(2));
+                default:
+                    return null;
+            }
+        default:
+            return null;
     }
 }
+console.log(converter(1500, 'USD', 'USD'));
+console.log(converter(1500, 'RUB', 'USD'));
+console.log(converter(1500, 'EUR', 'USD'));
 
-console.log(convertCurrency(1000, 'RUB', 'USD'));
-console.log(convertCurrency(10, 'USD', 'EUR'));
-console.log(convertCurrency(200, 'EUR', 'RUB'));
-console.log(convertCurrency(500, 'RUB', 'JPY'));
