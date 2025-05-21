@@ -1,34 +1,28 @@
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="17-calc.css" />
+    <title>Калькулятор</title>
+    <link rel="stylesheet" href="./17-calc.css" />
   </head>
   <body>
     <div class="calculator">
-      <h2>Калькулятор</h2>
-      <input
-        type="number"
-        id="num1"
-        placeholder="Введите первое число"
-        required
-      />
-      <input
-        type="number"
-        id="num2"
-        placeholder="Введите второе число"
-        required
-      />
-      <div>
-        <button onclick="calculate('+')">+</button>
-        <button onclick="calculate('-')">-</button>
-        <button onclick="calculate('*')">×</button>
-        <button onclick="calculate('/')">÷</button>
+      <div class="inputs">
+        <input class="input" placeholder="Первое число" type="number" />
+        <input class="input" placeholder="Второе число" type="number" />
       </div>
-      <div id="result">Результат:</div>
+      <div class="buttons">
+        <button class="button" data-action="+">+</button>
+        <button class="button" data-action="-">-</button>
+        <button class="button" data-action="×">×</button>
+        <button class="button" data-action="/">/</button>
+      </div>
+      <button class="button button-active" onclick="submitForm()">
+        Посчитать
+      </button>
+      <div class="answerText">Ответ:</div>
+      <div class="answer"></div>
     </div>
-    <script src="17-calc.js" defer></script>
+    <script src="./17-calc.js"></script>
   </body>
 </html>
