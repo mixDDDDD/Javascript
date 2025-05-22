@@ -58,19 +58,19 @@ const ToDoList = {
     },
 };
 
-// Расширенный объект ToDoList
-const ExtendedToDoList = Object.create(ToDoList);
-
-// Новый метод для добавления задачи с описанием
-ExtendedToDoList.addTaskWithDescription = function(title, description, priority) {
-    if (typeof description !== 'string' || description.trim() === '') {
-        throw new Error('Описание должно быть непустой строкой');
+// Добавление новых методов к существующему объекту ToDoList с привязкой контекста
+ToDoList.addTaskWithDescription = function(title, priority, description) {
+    if (typeof description !== 'string') {
+        throw new Error('Описание должно быть строкой');
     }
-    const task = this.addTask(title, priority);
+    const task = this.addTask.call(this, title, priority);
     task.description = description;
     return task;
-};
+}.bind(ToDoList);
 
-// Пример использования
-const task1 = ExtendedToDoList.addTaskWithDescription('тест', 'описание', 0);
-console.log(task1);
+ToDoList.updateTaskWithDescription = function(data) {
+    if (data.description && typeof data.description !== 'string') {
+        throw new Error('Описание должно быть строкой');
+    }
+    return this.updateTask.call(this, data);
+}.bind(ToDoList);
