@@ -1,76 +1,135 @@
 'use strict';
 
-// Исходный объект ToDoList (без изменений)
-const ToDoList = {
+function isValidData(data) {
+    if (!data) {
+        console.log('Данные не переданы');
+        return false;
+    }
+    if (typeof data !== 'object') {
+        console.log('Переданные данные не являются объектом');
+        return false;
+    }
+    return true;
+}
+
+function getTaskById(taskId) {
+    if(!this){
+        console.log('Необходима связка this. Используйте методы call/apply/bind');
+        return;
+    }
+    if (!taskId) {
+        console.log(`Значение ID не передано или передано некорректно`);
+        return;
+    }
+    if(!this.tasks){
+        console.log('Ничего не найдено. tasks не существует в данном контексте');
+        return;
+    }
+    const task = this?.tasks?.find(({ id }) => id === taskId) ?? null;
+    if (!task) {
+        console.log(`Задача с id ${taskId} еще не добавлена в ваш список дел.`);
+    }
+    return task;
+}
+
+const toDoList = {
     tasks: [],
-    lastId: 0,
 
-    // Добавить задачу
-    addTask(title, priority) {
-        if (typeof title !== 'string' || title.trim() === '') {
-            throw new Error('Заголовок должен быть непустой строкой');
+    addTask(data) {
+        const isValid = isValidData(data);
+        if (!isValid) {
+            return this;
         }
-        if (!Number.isInteger(priority) || priority < 0) {
-            throw new Error('Priority должен быть неотрицательным целым числом');
+        if (!this.tasks) {
+            this.tasks = [];
         }
-        const task = { 
-            title, 
-            id: ++this.lastId, 
-            priority 
-        };
-        this.tasks.push(task);
-        return task;
+        if (!this.lastId) {
+            this.lastId = 0;
+        }
+
+        this.tasks.push({ ...data, id: ++this.lastId, createdAt: Date.now(), updatedAt: null });
+        return this;
     },
-
-    // Поиск задачи по id
-    getTaskById(id) {
-        const task = this.tasks.find((task) => task.id === id);
-        if (!task) {
-            console.log(`Задача с id = ${id} не найдена`);
+    addTask2(...args) {
+        const [title, priority, ...other] = args;
+        const data = {};
+        if (typeof title === 'string') {
+            if (!title) {
+                console.log('Тайтл не может быть пустым');
+                return this;
+            }
+            if (!priority) {
+                console.log('Приоритет не заполнен');
+                return this;
+            }
+            data.title = title;
+            data.priority = priority;
+            if (other.length > 0) {
+                data.descriptiion = [...other];
+            }
+        } else {
+            const isValid = isValidData(title);
+            if (!isValid) {
+                return this;
+            }
+            Object.assign(data, title);
         }
-        return task;
-    },
+        if (!this.tasks) {
+            this.tasks = [];
+        }
+        if (!this.lastId) {
+            this.lastId = 0;
+        }
 
-    // Удалить задачу по id
-    removeTask: function(id) {
-        const task = this.getTaskById(id);
+        this.tasks.push({ ...data, id: ++this.lastId, createdAt: Date.now(), updatedAt: null });
+        return this;
+    },
+    removeTask: function (id) {
+        const task = getTaskById.call(this, id); // call как раз для связки контекста с внешней функцией
         if (task) {
-            this.tasks = this.tasks.filter(task => task.id !== id);
+            console.log(`Задача с id ${id} успешно удалена.`);
+            this.tasks = this.tasks.filter((el) => el.id !== id);
         }
-        return this.tasks;
+        return this;
     },
 
-    // Обновить задачу по id
-    updateTask: function(data) {
-        const { id, ...otherData } = data;
-        const task = this.getTaskById(id);
-        if (Object.keys(otherData).length === 0) {
-            return task;
+    updateTask(taskId, newData) {
+        const { id, ...data } = newData;
+        const isValid = isValidData(data);
+        if (!isValid) {
+            return this;
         }
-        Object.assign(task, otherData);
-        console.log(`задача с id = ${ id } - успешно обновлена`);
-        return task;
+        const task = getTaskById.call(this, taskId);
+
+        if (task) {
+            console.log(`Задача с id ${taskId} успешно обновлена.`);
+            Object.assign(task, { ...data, updatedAt: Date.now() });
+        }
+        return this;
+    },
+    updateTask2(newData) {
+        const { id, ...data } = newData;
+        const isValid = isValidData(data);
+        if (!isValid) {
+            return this;
+        }
+        const task = getTaskById.call(this, id);
+
+        if (task) {
+            console.log(`Задача с id ${id} успешно обновлена.`);
+            Object.assign(task, { ...newData, updatedAt: Date.now() });
+        }
+        return this;
     },
 
-    // Сортировать задачи
-    sortTasks() {
-        return this.tasks.sort((a, b) => a.priority - b.priority);
+    sortTasks: function (desc = false, sortBy = 'id') {
+        const ALLOW_KEYS = [...new Set(this.tasks.map(Object.keys).flat())];
+
+        if (!ALLOW_KEYS.includes(sortBy)) {
+            console.log(`Нет такого ключа, доступные ключи: [${ALLOW_KEYS.join(', ')}]`);
+            return;
+        }
+
+        this.tasks.sort(({ [sortBy]: a }, { [sortBy]: b }) => (desc ? b - a : a - b));
     },
 };
-
-// Добавление новых методов к существующему объекту ToDoList с привязкой контекста
-ToDoList.addTaskWithDescription = function(title, priority, description) {
-    if (typeof description !== 'string') {
-        throw new Error('Описание должно быть строкой');
-    }
-    const task = this.addTask.call(this, title, priority);
-    task.description = description;
-    return task;
-}.bind(ToDoList);
-
-ToDoList.updateTaskWithDescription = function(data) {
-    if (data.description && typeof data.description !== 'string') {
-        throw new Error('Описание должно быть строкой');
-    }
-    return this.updateTask.call(this, data);
-}.bind(ToDoList);
